@@ -41,6 +41,11 @@ module Rouge
           push :tag
         end
 
+        rule /<%\s*=\s*|<%\s*/m do
+          token Name::Tag
+          push :ejs_content
+        end
+
         rule /<\//, Name::Tag, :tag_end
         rule /</, Name::Tag, :tag_start
 
@@ -108,6 +113,14 @@ module Rouge
       state :sq do
         rule /'/, Str, :pop!
         rule /[^']+/, Str
+      end
+
+      state :ejs_content do
+        rule %r([^<%=>]+) do
+          delegate @javascript
+        end
+
+        rule %r([<%=>]+), Name::Tag, :pop!
       end
 
       state :script_content do
